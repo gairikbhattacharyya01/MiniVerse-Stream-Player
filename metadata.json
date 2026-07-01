@@ -1,0 +1,6 @@
+{
+  "name": "MiniVerse Video Player",
+  "description": "An online real-time synchronized HLS (.m3u8) stream player featuring admin controls, custom stream proxying to bypass CORS & mixed-content blocks, casting, and picture-in-picture mode.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
