@@ -1,6 +1,68 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
+import http from "http";
+import https from "https";
+
+async function httpGetWithRedirects(
+  urlStr: string,
+  customHeaders: Record<string, string> = {},
+  redirectCount = 0
+): Promise<{
+  statusCode: number;
+  statusMessage: string;
+  headers: Record<string, string | string[] | undefined>;
+  body: Buffer;
+}> {
+  if (redirectCount > 5) {
+    throw new Error("Too many redirects");
+  }
+
+  return new Promise((resolve, reject) => {
+    try {
+      const urlObj = new URL(urlStr);
+      const client = urlObj.protocol === "https:" ? https : http;
+      
+      const options = {
+        method: "GET",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+          "Accept": "*/*",
+          ...customHeaders
+        }
+      };
+
+      const req = client.request(urlStr, options, (res) => {
+        if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+          const redirectUrl = new URL(res.headers.location, urlStr).href;
+          resolve(httpGetWithRedirects(redirectUrl, customHeaders, redirectCount + 1));
+          return;
+        }
+
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk) => {
+          chunks.push(chunk);
+        });
+        res.on("end", () => {
+          resolve({
+            statusCode: res.statusCode || 200,
+            statusMessage: res.statusMessage || "OK",
+            headers: res.headers,
+            body: Buffer.concat(chunks)
+          });
+        });
+      });
+
+      req.on("error", (err) => {
+        reject(err);
+      });
+
+      req.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
 
 interface StreamState {
   url: string;
@@ -10,8 +72,8 @@ interface StreamState {
 }
 
 let streamState: StreamState = {
-  url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", // Default test stream
-  title: "Mux Big Buck Bunny (Default Test)",
+  url: "http://84.17.50.102/fox/index.m3u8", // Default live stream
+  title: "FIFA WORLD CUP 2026 Live",
   status: "playing",
   updatedAt: Date.now()
 };
@@ -89,20 +151,14 @@ async function startServer() {
       const parsedTargetUrl = new URL(targetUrl);
       const parentUrl = parsedTargetUrl.href.substring(0, parsedTargetUrl.href.lastIndexOf("/") + 1);
 
-      // Fetch the target stream asset
-      const response = await fetch(parsedTargetUrl.href, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-          "Accept": "*/*",
-          "Accept-Language": "en-US,en;q=0.9",
-        }
-      });
+      // Fetch the target stream asset using our robust redirect-following HTTP module client
+      const response = await httpGetWithRedirects(parsedTargetUrl.href);
 
-      if (!response.ok) {
-        return res.status(response.status).send(`Failed to fetch: ${response.statusText}`);
+      if (response.statusCode >= 400) {
+        return res.status(response.statusCode).send(`Failed to fetch: ${response.statusMessage}`);
       }
 
-      const contentType = response.headers.get("content-type") || "";
+      const contentType = (response.headers["content-type"] as string) || "";
       
       // Set permissive CORS and caching headers for streaming performance
       res.setHeader("Access-Control-Allow-Origin", "*");
@@ -116,10 +172,10 @@ async function startServer() {
         contentType.includes("mpegurl") || 
         contentType.includes("application/x-mpegURL") || 
         contentType.includes("vnd.apple.mpegurl") ||
-        contentType.includes("application/octet-stream") && targetUrl.endsWith(".m3u8");
+        (contentType.includes("application/octet-stream") && targetUrl.endsWith(".m3u8"));
 
       if (isM3U8) {
-        const text = await response.text();
+        const text = response.body.toString("utf8");
         const lines = text.split(/\r?\n/);
         
         const rewrittenLines = lines.map(line => {
@@ -129,13 +185,13 @@ async function startServer() {
           // 1. Rewrite tag lines that contain URIs (e.g., encryption keys or audio tracks)
           if (trimmed.startsWith("#")) {
             return trimmed.replace(/(URI=")([^"]+)(")/g, (match, p1, p2, p3) => {
-              const absoluteUrl = resolveUrl(p2, parentUrl);
+              const absoluteUrl = resolveUrl(p2, parentUrl, parsedTargetUrl.search);
               return `${p1}/api/proxy?url=${encodeURIComponent(absoluteUrl)}${p3}`;
             });
           }
 
           // 2. Rewrite normal segment/sub-playlist URLs
-          const absoluteUrl = resolveUrl(trimmed, parentUrl);
+          const absoluteUrl = resolveUrl(trimmed, parentUrl, parsedTargetUrl.search);
           return `/api/proxy?url=${encodeURIComponent(absoluteUrl)}`;
         });
 
@@ -144,10 +200,7 @@ async function startServer() {
       } else {
         // It's a binary segment (.ts, .aac, .mp4, encryption key, etc.)
         res.setHeader("Content-Type", contentType || "video/MP2T");
-        
-        // Use native ArrayBuffer chunk-sending to support large data safely
-        const arrayBuffer = await response.arrayBuffer();
-        return res.send(Buffer.from(arrayBuffer));
+        return res.send(response.body);
       }
     } catch (error: any) {
       console.error("Proxy failure for url:", targetUrl, error);
@@ -155,10 +208,15 @@ async function startServer() {
     }
   });
 
-  // Helper helper to resolve relative URLs
-  function resolveUrl(urlStr: string, baseUrlStr: string): string {
+  // Helper helper to resolve relative URLs with query param preservation
+  function resolveUrl(urlStr: string, baseUrlStr: string, originalSearch: string = ""): string {
     try {
-      return new URL(urlStr, baseUrlStr).href;
+      const resolved = new URL(urlStr, baseUrlStr);
+      // Forward the original query string if the child resource doesn't have its own
+      if (originalSearch && !resolved.search) {
+        resolved.search = originalSearch;
+      }
+      return resolved.href;
     } catch {
       return urlStr;
     }

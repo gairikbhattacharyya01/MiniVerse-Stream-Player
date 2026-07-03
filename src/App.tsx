@@ -11,8 +11,8 @@ import { motion, AnimatePresence } from "motion/react";
 export default function App() {
   const [activeTab, setActiveTab] = useState<"viewer" | "admin">("viewer");
   const [streamState, setStreamState] = useState<StreamState>({
-    url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-    title: "Mux Big Buck Bunny (Default Test)",
+    url: "http://84.17.50.102/fox/index.m3u8",
+    title: "FIFA WORLD CUP 2026 Live",
     status: "playing",
     updatedAt: Date.now()
   });
@@ -84,41 +84,41 @@ export default function App() {
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none -z-10" />
 
       {/* Main Container */}
-      <div className="w-full max-w-7xl mx-auto px-6 py-6 md:py-10 flex flex-col gap-6 md:gap-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-10 flex flex-col gap-6 md:gap-8">
         
         {/* Navigation / Brand Header */}
-        <header className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/5 pb-6 bg-[#080808]/80 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/5">
+        <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-white/5 pb-6 bg-[#080808]/80 backdrop-blur-xl rounded-2xl px-4 py-4 sm:px-6 border border-white/5">
           {/* Logo Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/10">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/10">
               <Tv className="w-5.5 h-5.5 text-white" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-display font-extrabold text-lg md:text-xl tracking-tight text-white">
+            <div className="min-w-0">
+              <div className="flex items-center flex-wrap gap-2">
+                <h1 className="font-display font-extrabold text-lg md:text-xl tracking-tight text-white truncate">
                   MiniVerse<span className="text-indigo-400 font-medium ml-1">Video</span>
                 </h1>
-                <span className="text-[10px] bg-indigo-500/10 text-indigo-400 font-bold px-2.5 py-0.5 rounded-full border border-indigo-500/20 uppercase tracking-widest font-mono">
+                <span className="text-[9px] sm:text-[10px] bg-indigo-500/10 text-indigo-400 font-bold px-2 py-0.5 rounded-full border border-indigo-500/20 uppercase tracking-widest font-mono shrink-0">
                   Live Engine
                 </span>
               </div>
-              <p className="text-zinc-500 text-xs mt-0.5">Real-time synchronized theater stream networks.</p>
+              <p className="text-zinc-500 text-xs mt-0.5 truncate">Real-time synchronized theater stream networks.</p>
             </div>
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div className="flex bg-[#121212] border border-white/10 p-1.5 rounded-xl shadow-inner">
+          <div className="flex bg-[#121212] border border-white/10 p-1 rounded-xl shadow-inner w-full sm:w-auto">
             <button
               id="btn-tab-viewer"
               onClick={() => setActiveTab("viewer")}
-              className={`px-4.5 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 transition-all cursor-pointer ${activeTab === "viewer" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-zinc-400 hover:text-white"}`}
+              className={`flex-1 sm:flex-initial px-3 sm:px-4.5 py-2 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${activeTab === "viewer" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-zinc-400 hover:text-white"}`}
             >
               <Laptop className="w-3.5 h-3.5" /> Theater Viewer
             </button>
             <button
               id="btn-tab-admin"
               onClick={() => setActiveTab("admin")}
-              className={`px-4.5 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 transition-all cursor-pointer ${activeTab === "admin" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-zinc-400 hover:text-white"}`}
+              className={`flex-1 sm:flex-initial px-3 sm:px-4.5 py-2 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${activeTab === "admin" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-zinc-400 hover:text-white"}`}
             >
               <Radio className="w-3.5 h-3.5" /> Broadcast Console
             </button>
@@ -154,75 +154,12 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Primary user player view */}
-                  <div className="lg:col-span-2 flex flex-col gap-6">
-                    <UserViewer
-                      streamState={streamState}
-                      connectionStatus={connectionStatus}
-                      onReconnect={handleReconnect}
-                    />
-                  </div>
-
-                  {/* Sidebar Info/Guide */}
-                  <div className="flex flex-col gap-6">
-                    {/* Welcome Card */}
-                    <div className="bg-[#080808] border border-white/10 rounded-2xl p-6 relative overflow-hidden shadow-xl">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl" />
-                      <div className="flex items-center gap-2 text-indigo-400 mb-3">
-                        <Sparkles className="w-4 h-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Theater Guide</span>
-                      </div>
-                      <h3 className="text-white text-base font-semibold tracking-tight font-display mb-2">Welcome to the MiniVerse Theater</h3>
-                      <p className="text-zinc-400 text-xs leading-relaxed mb-4">
-                        This is the customized watch face. An admin manages the live stream parameters from the Broadcast Console. When they switch tracks, play, or pause, your player updates natively!
-                      </p>
-                      
-                      <div className="border-t border-white/5 pt-4 flex flex-col gap-3">
-                        <div className="flex items-start gap-2.5">
-                          <span className="bg-indigo-500/10 text-indigo-400 p-1 rounded font-mono font-bold text-[9px] w-5 text-center mt-0.5 border border-indigo-500/20">1</span>
-                          <p className="text-zinc-500 text-[11px] leading-relaxed">
-                            Open this application in <strong className="text-zinc-300">multiple browser windows</strong> to observe the instant synchronized playhead state!
-                          </p>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <span className="bg-indigo-500/10 text-indigo-400 p-1 rounded font-mono font-bold text-[9px] w-5 text-center mt-0.5 border border-indigo-500/20">2</span>
-                          <p className="text-zinc-500 text-[11px] leading-relaxed">
-                            Toggle <strong className="text-zinc-300">Broadcast Console</strong> at the top right to act as the theater director!
-                          </p>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <span className="bg-indigo-500/10 text-indigo-400 p-1 rounded font-mono font-bold text-[9px] w-5 text-center mt-0.5 border border-indigo-500/20">3</span>
-                          <p className="text-zinc-500 text-[11px] leading-relaxed">
-                            The custom player uses a server-side proxy which lets you load and stream CORS-locked or HTTP links on our HTTPS platform flawlessly!
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Stream specs diagnostics banner */}
-                    <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl p-6 shadow-md">
-                      <h4 className="text-white font-semibold font-display text-xs mb-3">Streaming Engine Details</h4>
-                      <div className="space-y-3 font-mono text-[11px]">
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-zinc-500">Codec Decoders</span>
-                          <span className="text-zinc-300">H.264 / AAC Audio</span>
-                        </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-zinc-500">HTML5 MSE Support</span>
-                          <span className="text-zinc-300">hls.js Active</span>
-                        </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-zinc-500">Chromecast Bridge</span>
-                          <span className="text-zinc-300">RemotePlayback API</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-zinc-500">CORS Proxy Port</span>
-                          <span className="text-zinc-300">3000 (Active)</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="max-w-5xl mx-auto w-full">
+                  <UserViewer
+                    streamState={streamState}
+                    connectionStatus={connectionStatus}
+                    onReconnect={handleReconnect}
+                  />
                 </div>
               </motion.div>
             ) : (

@@ -118,9 +118,7 @@ export default function UserViewer({
                   )}
                 </AnimatePresence>
               </div>
-              <p className="text-zinc-400 text-xs mt-1.5 max-w-md leading-relaxed">
-                Your player is hardwired to the admin's broadcast. Any changes to the play state, channel, or stream URLs propagate to your display immediately.
-              </p>
+
             </div>
           </div>
 
@@ -137,13 +135,13 @@ export default function UserViewer({
         </div>
 
         {/* Live Reaction Tray */}
-        <div className="border-t border-white/5 mt-5 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="border-t border-white/5 mt-5 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-center md:text-left">
           <div className="flex flex-col gap-0.5">
             <span className="text-zinc-200 text-xs font-semibold font-display">Broadcast Reactions</span>
             <span className="text-zinc-500 text-[10px]">Send real-time reaction visualizers across the theater:</span>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-2.5">
             {[
               { emoji: "🔥", label: "Flame" },
               { emoji: "❤️", label: "Love" },
@@ -167,37 +165,7 @@ export default function UserViewer({
           </div>
         </div>
 
-        {/* Diagnostics Specs breakdown */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 pt-4 border-t border-white/5">
-          <div className="flex flex-col gap-1">
-            <span className="text-zinc-500 text-[9px] uppercase tracking-wider font-mono">Stream Host</span>
-            <span className="text-zinc-200 text-xs font-mono truncate">
-              {(() => {
-                try {
-                  return new URL(streamState.url).hostname;
-                } catch {
-                  return "Default Feed";
-                }
-              })()}
-            </span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-zinc-500 text-[9px] uppercase tracking-wider font-mono">Protocol Target</span>
-            <span className="text-zinc-200 text-xs font-mono">
-              {streamState.url.toLowerCase().startsWith("http://") ? "HTTP (Bypassed)" : "HTTPS (Secure)"}
-            </span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-zinc-500 text-[9px] uppercase tracking-wider font-mono">Timeline Sync State</span>
-            <span className="text-zinc-200 text-xs font-mono capitalize">{streamState.status}</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-zinc-500 text-[9px] uppercase tracking-wider font-mono">Refreshed Timestamp</span>
-            <span className="text-zinc-200 text-xs font-mono">
-              {new Date(streamState.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-            </span>
-          </div>
-        </div>
+
       </div>
     </div>
   );

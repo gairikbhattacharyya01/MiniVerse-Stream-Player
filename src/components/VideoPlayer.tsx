@@ -125,17 +125,35 @@ export default function VideoPlayer({
         // level switched
       });
 
+      let networkRetryCount = 0;
+      let mediaRetryCount = 0;
+      const MAX_RETRIES = 3;
+
       hls.on(Hls.Events.ERROR, (event, data) => {
-        console.error("HLS error:", data);
         if (data.fatal) {
+          console.error("Fatal HLS error:", data);
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.warn("Fatal network error, trying to recover...");
-              hls.startLoad();
+              if (networkRetryCount < MAX_RETRIES) {
+                networkRetryCount++;
+                console.warn(`Fatal HLS network error (retry ${networkRetryCount}/${MAX_RETRIES}): trying to recover...`, data);
+                hls.startLoad();
+              } else {
+                setHasError(true);
+                setErrorMsg(`Playback failed: Persistent network error (${data.details})`);
+                hls.destroy();
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              console.warn("Fatal media error, trying to recover...");
-              hls.recoverMediaError();
+              if (mediaRetryCount < MAX_RETRIES) {
+                mediaRetryCount++;
+                console.warn(`Fatal HLS media error (retry ${mediaRetryCount}/${MAX_RETRIES}): trying to recover...`, data);
+                hls.recoverMediaError();
+              } else {
+                setHasError(true);
+                setErrorMsg(`Playback failed: Persistent media/decoder error (${data.details})`);
+                hls.destroy();
+              }
               break;
             default:
               setHasError(true);
@@ -143,6 +161,9 @@ export default function VideoPlayer({
               hls.destroy();
               break;
           }
+        } else {
+          // Log non-fatal errors to console.warn so they do not trigger automated fatal error alarms
+          console.warn("HLS non-fatal warning:", data);
         }
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
@@ -755,7 +776,7 @@ export default function VideoPlayer({
                       setForceProxy(!forceProxy);
                       resetControlsTimeout();
                     }}
-                    className={`p-2 rounded-lg transition-all ${forceProxy ? "text-indigo-400 bg-indigo-500/10 border border-indigo-500/20" : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"}`}
+                    className={`p-1.5 sm:p-2 rounded-lg transition-all ${forceProxy ? "text-indigo-400 bg-indigo-500/10 border border-indigo-500/20" : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"}`}
                     title={forceProxy ? "Proxy play active" : "Play direct (No Proxy)"}
                   >
                     <Shield className="w-4 h-4" />
@@ -765,7 +786,7 @@ export default function VideoPlayer({
                   <button
                     id="btn-pip"
                     onClick={togglePip}
-                    className="p-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                    className="hidden sm:inline-flex p-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     title="Picture-in-Picture Mode"
                   >
                     <Minimize2 className="w-4 h-4" />
@@ -775,7 +796,7 @@ export default function VideoPlayer({
                   <button
                     id="btn-cast"
                     onClick={triggerCast}
-                    className="p-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                    className="p-1.5 sm:p-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     title="Cast Stream Screen"
                   >
                     <Cast className="w-4 h-4" />
@@ -785,7 +806,7 @@ export default function VideoPlayer({
                   <button
                     id="btn-fullscreen"
                     onClick={toggleFullscreen}
-                    className="p-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                    className="p-1.5 sm:p-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     title="Toggle Fullscreen"
                   >
                     {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}

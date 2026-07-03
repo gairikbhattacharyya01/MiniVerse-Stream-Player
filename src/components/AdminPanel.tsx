@@ -211,29 +211,29 @@ export default function AdminPanel({
               <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-mono">Live Timeline Sync</span>
               <h4 className="text-white font-medium text-xs mt-1 mb-3">Sync play/pause states across all users in real-time:</h4>
               
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
                 <button
                   id="btn-admin-broadcast-play"
                   onClick={() => onTriggerSyncAction("playing")}
-                  className={`py-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${currentStatus === "playing" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15" : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-white/5"}`}
+                  className={`py-2.5 sm:py-3 rounded-lg text-[10px] sm:text-xs font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${currentStatus === "playing" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15" : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-white/5"}`}
                 >
-                  <Play className="w-3.5 h-3.5 fill-current" /> Play
+                  <Play className="w-3.5 h-3.5 fill-current shrink-0" /> Play
                 </button>
                 
                 <button
                   id="btn-admin-broadcast-pause"
                   onClick={() => onTriggerSyncAction("paused")}
-                  className={`py-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${currentStatus === "paused" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/15" : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-white/5"}`}
+                  className={`py-2.5 sm:py-3 rounded-lg text-[10px] sm:text-xs font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${currentStatus === "paused" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/15" : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-white/5"}`}
                 >
-                  <Pause className="w-3.5 h-3.5 fill-current" /> Pause
+                  <Pause className="w-3.5 h-3.5 fill-current shrink-0" /> Pause
                 </button>
 
                 <button
                   id="btn-admin-broadcast-stop"
                   onClick={() => onTriggerSyncAction("stopped")}
-                  className={`py-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${currentStatus === "stopped" ? "bg-red-600 text-white shadow-lg shadow-red-600/15" : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-white/5"}`}
+                  className={`py-2.5 sm:py-3 rounded-lg text-[10px] sm:text-xs font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${currentStatus === "stopped" ? "bg-red-600 text-white shadow-lg shadow-red-600/15" : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-white/5"}`}
                 >
-                  <Square className="w-3.5 h-3.5 fill-current" /> Stop
+                  <Square className="w-3.5 h-3.5 fill-current shrink-0" /> Stop
                 </button>
               </div>
             </div>

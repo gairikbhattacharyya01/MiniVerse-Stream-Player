@@ -2,6 +2,12 @@ import { StreamPreset } from "../types";
 
 export const PRESET_STREAMS: StreamPreset[] = [
   {
+    name: "FIFA WORLD CUP 2026 Live",
+    url: "http://84.17.50.102/fox/index.m3u8",
+    category: "Live News",
+    description: "Real-time live stream of FIFA World Cup 2026. Bypasses raw HTTP restrictions."
+  },
+  {
     name: "Big Buck Bunny (Mux Test)",
     url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
     category: "Test Feeds",
